@@ -8,7 +8,7 @@
 | Gradient-free | yes (logit-lens form needs nothing; tuned lens learns a small affine map per layer) |
 | Paper | Belrose et al., arXiv 2303.08112 (2023) tuned lens [CHECKED]; "What do your logits know?" arXiv 2604.09885 (2026) [CHECKED id; content to re-verify] |
 | Sabre doc number | #12 in `sabre/docs/mech-interp-additions.md` |
-| Placement | offline spike beside SafetyAlignmentProbe: refusal-depth readout |
+| Placement | **blocked** until a coherent, model-derived ASR readout exists; then an offline spike beside SafetyAlignmentProbe (refusal-depth readout) |
 
 ## What it does, in plain words
 
@@ -34,6 +34,22 @@ Reading the lens at every layer for one prompt, as a depth trajectory from one u
 
 the trajectory is read on the residual mixture, but routing is known per token, so trajectories can be stratified by routing cell at no extra cost.
 
+## Blocking constraint (decision 2026-10-08)
+
+The per-layer number is a probability difference between two fixed word lists, refusal words and
+compliance words, kept in `stability_lens_readout.py` and marked there as a draft. The lists were written
+by hand and have never been validated on a large model. The evidence we have points the other way: the
+abliteration code records that the first answer token on Qwen3.5 is a bare "I", on neither list, and
+that the refusal score read as blind until that was patched; the Angular judge artefact showed that a
+wrong readout still produces numbers.
+
+So the method cannot be used until Sabre has a coherent attack-success readout for the model under test,
+derived from what that model actually emits on judged-refused and judged-complied prompts. Compliance
+words cannot be assumed in advance. Deriving the lists is the prerequisite, not a refinement.
+
 ## Verdict
 
-Add as the cheap offline spike beside the probe: a refusal-depth readout per model, scored on the existing harmful and benign prompt sets. No runtime path is proposed.
+Do not use until the model-derived ASR readout exists. Once it does, add as the cheap offline spike beside
+the probe: a refusal-depth readout per model, scored on the existing harmful and benign prompt sets.
+In its cheapest form this is the logit lens swept over every layer; the new part is only the curve
+and the commit-layer score on top of it.

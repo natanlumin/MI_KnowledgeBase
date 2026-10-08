@@ -22,7 +22,7 @@ target. Compiled 2026-10-08 from the Sabre code (`luminai/sabre/src/scanner/`), 
 | MI-10 | [CLT-Forge (scalable cross-layer transcoder library)](methods/mi-10-clt-forge.md) | Very heavy | no | drop |
 | MI-11 | [Activation patching / causal mediation / path patching](methods/mi-11-activation-patching.md) | Medium | no (sweeps) | validation |
 | MI-12 | [Relevance Patching (RelP, layer-wise relevance propagation)](methods/mi-12-relevance-patching-relp.md) | Medium, and suspect | no | excluded |
-| MI-13 | [Tuned lens / prediction trajectory](methods/mi-13-lens-prediction-trajectory.md) | Light | yes | offline spike beside SafetyAlignmentProbe: refusal-depth readout |
+| MI-13 | [Tuned lens / prediction trajectory](methods/mi-13-lens-prediction-trajectory.md) | Light | yes | blocked: needs a model-derived ASR readout first; then an offline spike beside SafetyAlignmentProbe |
 | MI-14 | [Patchscopes](methods/mi-14-patchscopes.md) | Light | no (extra passes) | validation |
 | MI-15 | [Activation Oracles (LLMs as activation explainers)](methods/mi-15-activation-oracles.md) | Heavy | no | drop |
 
@@ -32,7 +32,8 @@ The machine and model the costs are measured against: [reference/cost-basis.md](
 
 ## The short answer
 
-- **Affordable now:** MI-07 (base-vs-fine-tune activation diffs), MI-13 (prediction trajectory, used offline as a refusal-depth readout), MI-14 (Patchscopes). All three are forward passes on existing prompt sets and reuse code Sabre already has.
+- **Affordable now:** MI-07 (base-vs-fine-tune activation diffs) and MI-14 (Patchscopes). Both are forward passes on existing prompt sets and reuse code Sabre already has.
+- **Cheap but blocked:** MI-13 (prediction trajectory). Its readout rests on hand-written refusal and compliance word lists that were never validated on a large model. Not to be used until Sabre has a coherent attack-success readout derived from the model itself. See the page.
 - **Build first:** MI-07. It fills a declared gap: the composition scanner skips fine-tunes, merges and adapters, and no Sabre test looks at what a fine-tune changed. Prerequisite: the scanned model must have a downloadable declared parent.
 - **Heavy:** MI-01, MI-02, MI-03, MI-06, MI-08, MI-15 need dictionary learning on a corpus or a trained reader. MI-09 and MI-10 are beyond heavy. MI-04 and MI-05 do not fit the machine.
 - **Fail the non-gradient rule:** MI-04 (gradient attributions), MI-05 (gradient-trained), MI-12 (backward pass), MI-15 (trained reader).
