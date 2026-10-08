@@ -36,20 +36,24 @@ the trajectory is read on the residual mixture, but routing is known per token, 
 
 ## Blocking constraint (decision 2026-10-08)
 
-The per-layer number is a probability difference between two fixed word lists, refusal words and
-compliance words, kept in `stability_lens_readout.py` and marked there as a draft. The lists were written
-by hand and have never been validated on a large model. The evidence we have points the other way: the
-abliteration code records that the first answer token on Qwen3.5 is a bare "I", on neither list, and
-that the refusal score read as blind until that was patched; the Angular judge artefact showed that a
-wrong readout still produces numbers.
+The per-layer number is a probability difference between two word lists: words that open a refusal and
+words that open a compliant answer. The method is only as good as those lists.
 
-So the method cannot be used until Sabre has a coherent attack-success readout for the model under test,
-derived from what that model actually emits on judged-refused and judged-complied prompts. Compliance
-words cannot be assumed in advance. Deriving the lists is the prerequisite, not a refinement.
+Hard-coded lists cannot be relied on. Which words open a refusal, and which open a compliant answer, is a
+property of each model: its training, its chat template, its tokenizer, and the way its safeguard was
+built. Two models can refuse the same prompt with different opening tokens, and a stronger safeguard
+tends to refuse in a more varied and less formulaic way than a weak one. So the lists must be built from
+scratch for every model under test, from what that model actually emits on prompts that were judged
+refused and judged complied, and rebuilt whenever the model changes. The effort of building them rises
+with the model's safety level, because a well-aligned model gives fewer and less uniform examples to learn
+from.
+
+Until Sabre has that per-model attack-success readout, this method is not to be used. Building the
+readout is the prerequisite for the method, not a refinement of it.
 
 ## Verdict
 
-Do not use until the model-derived ASR readout exists. Once it does, add as the cheap offline spike beside
+Do not use until the per-model attack-success readout exists. Once it does, add as the cheap offline spike beside
 the probe: a refusal-depth readout per model, scored on the existing harmful and benign prompt sets.
 In its cheapest form this is the logit lens swept over every layer; the new part is only the curve
 and the commit-layer score on top of it.
