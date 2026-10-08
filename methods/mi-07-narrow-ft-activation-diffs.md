@@ -34,6 +34,10 @@ A base-versus-fine-tune activation comparison. For the three relations the compo
 
 bucket tokens by the expert that fired in the base and diff only where the same expert fired in both models; report the fraction of tokens whose top-8 set changed and the router KL as a separate signal; for adapters the fine-tune side is base plus adapter loaded.
 
+## Readouts
+
+Three readouts of the difference vector: decode it through the lens onto word lists; add it to the base as a steering vector and let the base talk; paste it in with a Patchscope (MI-14). The first depends on the per-model word lists ([reference/asr-readout-prerequisite.md](../reference/asr-readout-prerequisite.md)) and waits for them. The other two generate text and do not; start with those.
+
 ## Verdict
 
 Build first. Prerequisite: the scanned model must have a downloadable declared parent; a base release has nothing to diff. Controls before quoting a number: positive = the 122B instruct vs a public abliterated republication; null = the same model in two quantisations.

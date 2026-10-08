@@ -8,7 +8,7 @@
 | Gradient-free | yes |
 | Paper | Ghandeharioun et al. (2024) [VERIFY] |
 | Sabre doc number | #13 in `sabre/docs/mech-interp-additions.md` |
-| Placement | validation |
+| Placement | validation: model-native check of the directions the six tests use |
 
 ## What it does, in plain words
 
@@ -32,6 +32,24 @@ An open-vocabulary, generation-based readout of a state or direction, faithful a
 
 a patch replaces the hidden state, so the router null-space projection does not apply cleanly; the patched token can reroute. Open problem.
 
+## What it gives Sabre
+
+Not a score. A model-native check on the directions every Sabre test rests on. Today the only evidence that
+the diff-of-means vector is "the refusal direction", that the Amnesia vector is "the safety signal on
+keywords", or that the Angular plane is refusal, is that removing them changes behaviour. Patchscopes lets
+the model say in its own words what each one encodes, at the layer it is used, without a word list and
+without the logit lens. Each test could then carry one sentence of the form "the model reads this direction
+as a request for harmful instructions", from the model rather than from us.
+
+## What it needs
+
+- a replace-state hook: the add-direction hook with the sum replaced by an assignment;
+- about 20 generated tokens per probe through the existing adapter;
+- a template that survives the model's chat format;
+- a grader that turns the generated sentence into a label: an LLM judge or a person for a few dozen probes. This is a dependency, but not on comply words.
+- the target layer is a parameter to sweep; the paper finds early target layers work best.
+
 ## Verdict
 
-Keep as a validation readout: use it to explain in words the vectors MI-07 or Amnesia produce. Not a detector.
+The only cheap method with no prerequisite. Build as the validity check for the directions of the six
+tests, starting with the diff-of-means refusal direction at the Weight Surgery layer. Not a detector.

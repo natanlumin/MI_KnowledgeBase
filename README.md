@@ -20,10 +20,10 @@ target. Compiled 2026-10-08 from the Sabre code (`luminai/sabre/src/scanner/`), 
 | MI-08 | [Delta-Crosscoder (robust narrow-FT diffing)](methods/mi-08-delta-crosscoder.md) | Heavy | days, as MI-06 | no | offline / deferred |
 | MI-09 | [Circuit tracing / attribution graphs (cross-layer transcoders)](methods/mi-09-circuit-tracing-attribution-graphs.md) | Very heavy | weeks | no | validation / drop |
 | MI-10 | [CLT-Forge (scalable cross-layer transcoder library)](methods/mi-10-clt-forge.md) | Very heavy | weeks, as MI-09 | no | drop |
-| MI-11 | [Activation patching / causal mediation / path patching](methods/mi-11-activation-patching.md) | Medium | tens of minutes to hours per sweep | no (sweeps) | validation |
+| MI-11 | [Activation patching / causal mediation / path patching](methods/mi-11-activation-patching.md) | Medium | about 1 hour per coarse sweep (~3,500 forwards) | no (sweeps) | blocked on the per-model readout; then validation |
 | MI-12 | [Relevance Patching (RelP, layer-wise relevance propagation)](methods/mi-12-relevance-patching-relp.md) | Medium, and suspect | unknown; backward pass through FP8 experts unproven | no | excluded |
 | MI-13 | [Tuned lens / prediction trajectory](methods/mi-13-lens-prediction-trajectory.md) | Light | seconds, inside the forward pass we already run | yes | blocked: needs a per-model attack-success readout first; then an offline spike beside SafetyAlignmentProbe |
-| MI-14 | [Patchscopes](methods/mi-14-patchscopes.md) | Light | minutes, if generations stay short | no (extra passes) | validation |
+| MI-14 | [Patchscopes](methods/mi-14-patchscopes.md) | Light | minutes, if generations stay short | no (extra passes) | validation: model-native check of the directions the six tests use |
 | MI-15 | [Activation Oracles (LLMs as activation explainers)](methods/mi-15-activation-oracles.md) | Heavy | does not fit the machine | no | drop |
 
 Excluded on the non-gradient rule: see [reference/excluded-gradient-methods.md](reference/excluded-gradient-methods.md).
@@ -38,6 +38,7 @@ All run times are estimates against the setup in [reference/cost-basis.md](refer
 - **Cheap but blocked:** MI-13 (prediction trajectory). Its readout rests on refusal and compliance word lists, and such lists cannot be hard-coded: they are a property of each model and must be built from scratch per model, with more effort as the model's safety level rises. Not to be used until Sabre has a per-model attack-success readout. See the page.
 - **Build first:** MI-07. It fills a declared gap: the composition scanner skips fine-tunes, merges and adapters, and no Sabre test looks at what a fine-tune changed. Prerequisite: the scanned model must have a downloadable declared parent.
 - **Heavy:** MI-01, MI-02, MI-03, MI-06, MI-08, MI-15 need dictionary learning on a corpus or a trained reader. MI-09 and MI-10 are beyond heavy. MI-04 and MI-05 do not fit the machine.
+- **Where that leaves us (2026-10-08):** nothing cheap gives a new vulnerability finding on an arbitrary single model today. MI-13 and MI-11 are blocked on a per-model attack-success readout ([reference/asr-readout-prerequisite.md](reference/asr-readout-prerequisite.md)), MI-07 needs the scanned model to have a parent, and MI-14, the only cheap unblocked one, is a readout rather than a detector. The readout prerequisite is therefore the first build item.
 - **Fail the non-gradient rule:** MI-04 (gradient attributions), MI-05 (gradient-trained), MI-12 (backward pass), MI-15 (trained reader).
 
 ## Rules this knowledge base follows
@@ -51,3 +52,12 @@ All run times are estimates against the setup in [reference/cost-basis.md](refer
 ## Numbering
 
 IDs follow the 15-row planning file. The Sabre doc dropped activation patching (MI-11 here) as pre-2024, so its numbers run one lower from that point; each page states its doc number.
+
+## Decisions log
+
+| Date | Decision |
+|---|---|
+| 2026-10-08 | Everything is judged as an offline, pre-deployment addition. No runtime path. |
+| 2026-10-08 | MI-xx IDs and titles are fixed; never renumber. The Sabre doc's own numbering is mapped on each page. |
+| 2026-10-08 | Word lists for refusal and compliance cannot be hard-coded; a per-model attack-success readout is a prerequisite. Blocks MI-13 and MI-11, and the lens step of MI-07. |
+| 2026-10-08 | Order: readout prerequisite, then MI-14 as the directions check, MI-07 where a parent exists. Heavy methods deferred on cost. |

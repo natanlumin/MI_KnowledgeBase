@@ -8,7 +8,7 @@
 | Gradient-free | yes |
 | Paper | classic method (2020 to 2023); caveat on subspace patching illusions: arXiv 2311.17030 [CHECKED, 2023]. Dropped from the Sabre doc as pre-2024; kept here because the intervention machinery is already in Sabre |
 | Sabre doc number | not in the Sabre doc (dropped as pre-2024) |
-| Placement | validation |
+| Placement | blocked on the per-model readout; then validation |
 
 ## What it does, in plain words
 
@@ -26,12 +26,16 @@ Causal localisation by layer and position without assuming a direction. Sabre's 
 ## How expensive it is to run
 
 - **Driver:** a sweep of forward passes: layers x positions x prompts, no training
-- **On the 122B (m-gp1):** 48 layers x a few positions x 24 prompts = a few thousand forwards; tens of minutes to a few hours
+- **On the 122B (m-gp1):** one coarse sweep per behaviour = 48 layers x ~3 positions x 24 prompt pairs = about 3,500 forward passes; about an hour, within a factor of two either way since prefill speed is unmeasured. Patching attention and MLP separately doubles it; per-head patching is out of reach.
 
 ## MoE conditioning
 
 a swapped state reroutes the token; the router null-space projection applies only to additive patches, so a replaced state is an open problem.
 
+## Prerequisite
+
+The sweep needs a flip metric that says whether the patched run refused or complied. That is the per-model attack-success readout described in [reference/asr-readout-prerequisite.md](../reference/asr-readout-prerequisite.md); the existing first-token refusal score carries the same hard-coded word-list problem. No reliable readout, no sweep.
+
 ## Verdict
 
-Validation tool. Useful to check a claimed locus (e.g. the Amnesia layer), not a scanner. Carry the subspace-illusion caveat in any write-up.
+Blocked on the readout. Then a validation tool. Useful to check a claimed locus (e.g. the Amnesia layer), not a scanner. Carry the subspace-illusion caveat in any write-up.
