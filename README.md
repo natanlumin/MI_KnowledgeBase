@@ -8,27 +8,29 @@ target. Compiled 2026-10-08 from the Sabre code (`luminai/sabre/src/scanner/`), 
 
 ## Index
 
-| ID | Method | Cost tier | Single-pass signal | Placement |
-|---|---|---|---|---|
-| MI-01 | [Skip-transcoders](methods/mi-01-skip-transcoders.md) | Heavy | maybe (feature monitor once trained) | offline / deferred |
-| MI-02 | [Subspace-aware sparse autoencoders (SASA)](methods/mi-02-subspace-aware-saes.md) | Heavy | maybe | offline / deferred |
-| MI-03 | [Concept-bottleneck SAEs (CB-SAE)](methods/mi-03-concept-bottleneck-saes.md) | Heavy | maybe | offline / deferred |
-| MI-04 | [APD, attribution-based parameter decomposition](methods/mi-04-apd-parameter-decomposition.md) | Infeasible on our machine | no | drop |
-| MI-05 | [SPD, stochastic parameter decomposition](methods/mi-05-spd-parameter-decomposition.md) | Infeasible on our machine | no | drop |
-| MI-06 | [BatchTopK crosscoders (model diffing)](methods/mi-06-batchtopk-crosscoders.md) | Heavy | no | offline / deferred |
-| MI-07 | [Narrow fine-tune traces in activation differences](methods/mi-07-narrow-ft-activation-diffs.md) | Light | no | offline, pre-deployment; new arm in CompositionScanner's skipped branch or a new scanner (decision pending) |
-| MI-08 | [Delta-Crosscoder (robust narrow-FT diffing)](methods/mi-08-delta-crosscoder.md) | Heavy | no | offline / deferred |
-| MI-09 | [Circuit tracing / attribution graphs (cross-layer transcoders)](methods/mi-09-circuit-tracing-attribution-graphs.md) | Very heavy | no | validation / drop |
-| MI-10 | [CLT-Forge (scalable cross-layer transcoder library)](methods/mi-10-clt-forge.md) | Very heavy | no | drop |
-| MI-11 | [Activation patching / causal mediation / path patching](methods/mi-11-activation-patching.md) | Medium | no (sweeps) | validation |
-| MI-12 | [Relevance Patching (RelP, layer-wise relevance propagation)](methods/mi-12-relevance-patching-relp.md) | Medium, and suspect | no | excluded |
-| MI-13 | [Tuned lens / prediction trajectory](methods/mi-13-lens-prediction-trajectory.md) | Light | yes | blocked: needs a per-model attack-success readout first; then an offline spike beside SafetyAlignmentProbe |
-| MI-14 | [Patchscopes](methods/mi-14-patchscopes.md) | Light | no (extra passes) | validation |
-| MI-15 | [Activation Oracles (LLMs as activation explainers)](methods/mi-15-activation-oracles.md) | Heavy | no | drop |
+| ID | Method | Cost tier | Run time on the 122B | Single-pass signal | Placement |
+|---|---|---|---|---|---|
+| MI-01 | [Skip-transcoders](methods/mi-01-skip-transcoders.md) | Heavy | days (10 to 30 GPU-h per 100M tokens per layer, unmeasured) | maybe (feature monitor once trained) | offline / deferred |
+| MI-02 | [Subspace-aware sparse autoencoders (SASA)](methods/mi-02-subspace-aware-saes.md) | Heavy | days, as MI-01 | maybe | offline / deferred |
+| MI-03 | [Concept-bottleneck SAEs (CB-SAE)](methods/mi-03-concept-bottleneck-saes.md) | Heavy | days, same order as MI-01 | maybe | offline / deferred |
+| MI-04 | [APD, attribution-based parameter decomposition](methods/mi-04-apd-parameter-decomposition.md) | Infeasible on our machine | does not fit the machine | no | drop |
+| MI-05 | [SPD, stochastic parameter decomposition](methods/mi-05-spd-parameter-decomposition.md) | Infeasible on our machine | does not fit the machine | no | drop |
+| MI-06 | [BatchTopK crosscoders (model diffing)](methods/mi-06-batchtopk-crosscoders.md) | Heavy | days, twice MI-01 | no | offline / deferred |
+| MI-07 | [Narrow fine-tune traces in activation differences](methods/mi-07-narrow-ft-activation-diffs.md) | Light | under 1 hour (two loads + forwards; generations the slow part) | no | offline, pre-deployment; new arm in CompositionScanner's skipped branch or a new scanner (decision pending) |
+| MI-08 | [Delta-Crosscoder (robust narrow-FT diffing)](methods/mi-08-delta-crosscoder.md) | Heavy | days, as MI-06 | no | offline / deferred |
+| MI-09 | [Circuit tracing / attribution graphs (cross-layer transcoders)](methods/mi-09-circuit-tracing-attribution-graphs.md) | Very heavy | weeks | no | validation / drop |
+| MI-10 | [CLT-Forge (scalable cross-layer transcoder library)](methods/mi-10-clt-forge.md) | Very heavy | weeks, as MI-09 | no | drop |
+| MI-11 | [Activation patching / causal mediation / path patching](methods/mi-11-activation-patching.md) | Medium | tens of minutes to hours per sweep | no (sweeps) | validation |
+| MI-12 | [Relevance Patching (RelP, layer-wise relevance propagation)](methods/mi-12-relevance-patching-relp.md) | Medium, and suspect | unknown; backward pass through FP8 experts unproven | no | excluded |
+| MI-13 | [Tuned lens / prediction trajectory](methods/mi-13-lens-prediction-trajectory.md) | Light | seconds, inside the forward pass we already run | yes | blocked: needs a per-model attack-success readout first; then an offline spike beside SafetyAlignmentProbe |
+| MI-14 | [Patchscopes](methods/mi-14-patchscopes.md) | Light | minutes, if generations stay short | no (extra passes) | validation |
+| MI-15 | [Activation Oracles (LLMs as activation explainers)](methods/mi-15-activation-oracles.md) | Heavy | does not fit the machine | no | drop |
 
 Excluded on the non-gradient rule: see [reference/excluded-gradient-methods.md](reference/excluded-gradient-methods.md).
 The Sabre tests the comparisons refer to: [reference/sabre-tests.md](reference/sabre-tests.md).
 The machine and model the costs are measured against: [reference/cost-basis.md](reference/cost-basis.md).
+
+All run times are estimates against the setup in [reference/cost-basis.md](reference/cost-basis.md); none has been measured. Build time is on each page under the verdict where it matters.
 
 ## The short answer
 
